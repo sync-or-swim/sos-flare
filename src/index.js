@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+import Earth from './earth';
+import Airplane from './airplane';
+import loadModels from './models';
 import './styles/index.css';
-import airplaneModel from './models/airplane.glb';
-import earthModel from './models/earth.glb';
 
 
 const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 0, 200);
@@ -16,50 +16,6 @@ const DEFAULT_CAMERA_POSITION = new THREE.Vector3(0, 0, 100);
 const MINIMUM_CAMERA_POSITION = new THREE.Vector3(0, 0, 60);
 const MAXIMUM_CAMERA_POSITION = new THREE.Vector3(0, 0, 300);
 
-
-/**
- * Wraps a three.js loader in a promise.
- */
-function promisifyLoader(loader, onProgress) {
-  function promiseLoader(url) {
-    return new Promise((resolve, reject) => {
-      loader.load(url, resolve, onProgress, reject);
-    });
-  }
-
-  return {
-    originalLoader: loader,
-    load: promiseLoader,
-  };
-}
-
-class Airplane {
-  constructor(scene, earthCenter, earthRadius) {
-    this.scene = scene;
-    this.earthCenter = earthCenter;
-    this.earthRadius = earthRadius;
-  }
-
-  setPosition(latitude, longitude) {
-    const latitudeRads = (Math.PI / 2) - (latitude * (Math.PI / 180.0));
-    const longitudeRads = longitude * (Math.PI / 180.0);
-    this.scene.position.z = 0;
-
-    this.scene.position.x = Math.sin(latitudeRads) * Math.sin(longitudeRads) * this.earthRadius;
-    this.scene.position.y = Math.cos(latitudeRads) * this.earthRadius;
-    this.scene.position.z = Math.sin(latitudeRads) * Math.cos(longitudeRads) * this.earthRadius;
-
-    this.scene.rotation.x = Math.sin(longitudeRads);
-    this.scene.rotation.z = Math.sin(latitudeRads);
-    this.scene.rotation.z = Math.cos(longitudeRads);
-  }
-}
-
-async function loadAirplane(loader) {
-  const gltf = await loader.load(airplaneModel);
-  gltf.scene.scale.multiplyScalar(0.1);
-  return new Airplane(gltf.scene, new THREE.Vector3(0, 0, 0), 52);
-}
 
 async function main() {
   const clock = new THREE.Clock();
@@ -81,19 +37,18 @@ async function main() {
   pointLight.position.set(100, 100, 200);
   scene.add(pointLight);
 
-  const loader = promisifyLoader(new GLTFLoader());
+  const models = await loadModels();
 
   const earthGroup = new THREE.Group();
 
-  const earthGLTF = await loader.load(earthModel);
-  const earth = earthGLTF.scene;
-  earth.scale.multiplyScalar(0.1);
-  earth.rotation.y = Math.PI;
-  earthGroup.add(earth);
+  const earth = new Earth(scene, models.earth, 52);
+  earth.transform.scale.multiplyScalar(0.1);
+  earth.transform.rotation.y = Math.PI;
 
-  const airplane = await loadAirplane(loader);
-  earthGroup.add(airplane.scene);
+  const airplane = new Airplane(scene, models.airplane, earth);
+  earthGroup.add(airplane.transform);
 
+  earthGroup.add(earth.transform);
   scene.add(earthGroup);
 
   renderer.domElement.addEventListener('wheel',
@@ -145,6 +100,4 @@ async function main() {
 }
 
 
-window.addEventListener('DOMContentLoaded', (event) => {
-  main();
-});
+window.addEventListener('DOMContentLoaded', main);
