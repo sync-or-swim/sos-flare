@@ -1,5 +1,5 @@
 {
-  "extends": "eslint:recommended",
+  "extends": "airbnb-base",
   "env": {
     "browser": true,
     "es6": true,
@@ -7,9 +7,6 @@
   "rules": {
     "max-len": ["error", 100, {"ignoreComments": true}],
     "no-unused-vars": ["error", {"vars": "all", "args": "none"}],
-    "semi": ["error", "always"],
-    "space-infix-ops": ["error"],
-    "comma-dangle": ["error", "only-multiline"],
   },
   "settings": {
     "import/resolver": {

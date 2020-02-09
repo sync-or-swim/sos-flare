@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import './styles/index.css';
 import airplaneModel from './models/airplane.glb';
@@ -9,7 +9,8 @@ import earthModel from './models/earth.glb';
 const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 0, 200);
 
 const DEFAULT_EARTH_ROTATION = new THREE.Quaternion().setFromEuler(
-  new THREE.Euler(Math.PI / 4, Math.PI / 1.8, 0, "XYZ"));
+  new THREE.Euler(Math.PI / 4, Math.PI / 1.8, 0, 'XYZ'),
+);
 const DEFAULT_CAMERA_POSITION = new THREE.Vector3(0, 0, 100);
 
 const MINIMUM_CAMERA_POSITION = new THREE.Vector3(0, 0, 60);
@@ -19,13 +20,11 @@ const MAXIMUM_CAMERA_POSITION = new THREE.Vector3(0, 0, 300);
 /**
  * Wraps a three.js loader in a promise.
  */
-function promisifyLoader ( loader, onProgress ) {
-  function promiseLoader ( url ) {
-    return new Promise( ( resolve, reject ) => {
-
-      loader.load( url, resolve, onProgress, reject );
-
-    } );
+function promisifyLoader(loader, onProgress) {
+  function promiseLoader(url) {
+    return new Promise((resolve, reject) => {
+      loader.load(url, resolve, onProgress, reject);
+    });
   }
 
   return {
@@ -46,7 +45,7 @@ class Airplane {
     const longitudeRads = longitude * (Math.PI / 180.0);
     this.scene.position.z = 0;
 
-    this.scene.position.x = Math.sin(latitudeRads) * Math.sin(longitudeRads)  * this.earthRadius;
+    this.scene.position.x = Math.sin(latitudeRads) * Math.sin(longitudeRads) * this.earthRadius;
     this.scene.position.y = Math.cos(latitudeRads) * this.earthRadius;
     this.scene.position.z = Math.sin(latitudeRads) * Math.cos(longitudeRads) * this.earthRadius;
 
@@ -69,8 +68,8 @@ async function main() {
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 300);
   camera.position.copy(INITIAL_CAMERA_POSITION);
 
-  let targetCameraPosition = DEFAULT_CAMERA_POSITION;
-  let targetEarthRotation = DEFAULT_EARTH_ROTATION;
+  const targetCameraPosition = DEFAULT_CAMERA_POSITION;
+  const targetEarthRotation = DEFAULT_EARTH_ROTATION;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -97,7 +96,7 @@ async function main() {
 
   scene.add(earthGroup);
 
-  renderer.domElement.addEventListener("wheel",
+  renderer.domElement.addEventListener('wheel',
     (event) => {
       targetCameraPosition.z += event.deltaY / 10;
       if (targetCameraPosition.z < MINIMUM_CAMERA_POSITION.z) {
@@ -107,30 +106,29 @@ async function main() {
       }
       event.preventDefault();
     });
-  renderer.domElement.addEventListener("mousemove",
+  renderer.domElement.addEventListener('mousemove',
     (event) => {
-      if (event.buttons == 1) {
+      if (event.buttons === 1) {
         const targetRotationEuler = new THREE.Euler().setFromQuaternion(targetEarthRotation);
 
         targetRotationEuler.y -= event.movementX / 1000;
         if (targetRotationEuler.y > Math.PI * 2) {
           targetRotationEuler.y -= Math.PI * 2;
-        } else if(targetRotationEuler.y < 0) {
+        } else if (targetRotationEuler.y < 0) {
           targetRotationEuler.y += Math.PI * 2;
         }
         targetRotationEuler.x += event.movementY / 1000;
         if (targetRotationEuler.x > Math.PI * 2) {
           targetRotationEuler.x -= Math.PI * 2;
-        } else if(targetRotationEuler.x < 0) {
+        } else if (targetRotationEuler.x < 0) {
           targetRotationEuler.x += Math.PI * 2;
         }
 
-        console.log(targetRotationEuler);
         targetEarthRotation.setFromEuler(targetRotationEuler);
       }
     });
 
-  let latitude = 33.6266711;
+  const latitude = 33.6266711;
 
   function animate() {
     requestAnimationFrame(animate);
