@@ -1,0 +1,32 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true,
+    "es6": true,
+  },
+  "rules": {
+    "max-len": ["error", 100, {"ignoreComments": true}],
+    "no-unused-vars": ["error", {"vars": "all", "args": "none"}],
+    "semi": ["error", "always"],
+    "space-infix-ops": ["error"],
+    "comma-dangle": ["error", "only-multiline"],
+  },
+  "settings": {
+    "import/resolver": {
+      "webpack": {
+        "config": {
+          "resolve": {
+            "modules": [
+              "src",
+              "node_modules"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+  }
+}
